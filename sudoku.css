@@ -1,0 +1,103 @@
+body {
+  color: #eee;
+  background-color: #111;
+  border-color: green;
+}
+
+#solver {
+  float: left;
+}
+
+#solverCode.ace {
+  width: 600px;
+  margin: 10px;
+  border-style: solid;
+  border-color: #999;
+  border-width: 1px;
+}
+
+#solverCode {
+  height: 80vh;
+  font-family: monospace;
+  display: block;
+}
+
+#display {
+  float: left;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  border-style: solid;
+  border-width: 4px;
+  border-color: #999;
+  height: 80vh;
+  margin: 10px;
+}
+
+#display .cell {
+  border-style: solid;
+  border-color: #999;
+  border-width: 1px;
+  display: flex;
+  align-items: center;
+  container-type: inline-size;
+}
+
+#display .cell.middle-left {
+  border-left-width: 4px;
+}
+
+#display .cell.middle-top {
+  border-top-width: 4px;
+}
+
+#display .cell .value {
+  font-weight: bold;
+  text-align: center;
+  font-size: 80cqw;
+  text-align: center;
+  width: 100%;
+}
+
+#display .cell.fromPuzzle {
+  background-color: lightgray;
+}
+
+#display .cell .value.invalid {
+  color: red;
+}
+
+#display .cell .helper {
+  color: gray;
+  font-style: italic;
+  font-size: 20cqw;
+  position: absolute;
+  top: 0;
+  margin-left: .2em;
+}
+
+#stats {
+  display: inline;
+}
+
+.stat, .statLabel, .statValue {
+  margin: 10px;
+  display: inline;
+}
+
+.messages {
+  clear: both;
+}
+
+#puzzle {
+  clear: both;
+}
+
+#help-md {
+  display: none;
+}
+
+#help {
+  width: 40vw;
+}

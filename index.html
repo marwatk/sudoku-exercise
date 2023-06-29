@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sudoku Solver Playground</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src data:; child-src blob: https://cdnjs.cloudflare.com; object-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;" />
+    <link rel="stylesheet" type="text/css" href="./sudoku.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+    <script src="./sudoku.js"></script>
+  </head>
+  <body>
+    <div class="solver" id="solver">
+      <button id="runSolver">Run</button>
+      <button id="stop">Stop</button>
+      <button id="reset">Reset</button>
+      <div id="stats">
+        <div class="stat">
+          <div class='statLabel'>isValid Calls:</div>
+          <div class="statValue" id="isValidCalls">0</div>
+        </div>
+        <div class="stat">
+          <div class='statLabel'>set Calls:</div>
+          <div class="statValue" id="setCalls">0</div>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div id="solverCode" class="ace"></div>
+      <!-- <textarea id="solverCode" cols="100"></textarea> -->
+    </div>
+    <div class="display" id="display"></div>
+    <div class="puzzle" id="puzzle">
+      <div>Puzzle:</div>
+      <textarea id="puzzleCode" cols="25" rows="14"></textarea>
+    </div>
+    <textarea id="help-md">
+To solve the puzzle you must implement a `solve(puzzle)` function that `set`s each empty cell to a valid number.
+For example, the following code blindly sets every empty cell to the number `1`:
+
+```javascript
+function solve(puzzle) {
+  for(let r = 0; r < 9; r++) {
+    for(let c = 0; c < 9; c++) {
+      if(puzzle.get(r,c) === 0) {
+        puzzle.set(r,c,1);
+      }
+    }
+  }
+}
+```
+
+This, of course, doesn't solve the puzzle, it just illustrates basic structure.
+There are six useful methods of the `puzzle` object:
+
+### `isValid(row, column, value)`
+
+Returns true if a number is valid for a cell (ignores if that cell already has a value).
+
+```javascript
+let valid = puzzle.isValid(0,2,9);
+// valid is false for the starter puzzle because there's already
+// a '9' in cell (0,1)
+```
+
+### `isPrefilled(row, column)`
+
+Returns true if a cell is prefilled as part of the puzzle.
+
+```javascript
+if(puzzle.isPrefilled(r, c)){
+  continue;
+}
+```
+
+### `set(row, column, value)`
+
+Set a non-prefilled cell to a number. Setting to '0' empties the cell.
+Attempting to set a prefilled cell results in an error.
+Validity of the supplied number for the given cell is ignored.
+
+```javascript
+puzzle.set(0,2,8);
+```
+
+### `isSolved()`
+
+Returns true if the puzzle is complete without invalid entries
+
+```javascript
+if( isSolved() ) {
+  // Yay, we're done
+  return;
+}
+```
+
+
+### `get(row, column)`
+
+Returns the value in a cell (or zero if not yet set and not prefilled by the puzzle)
+
+```javascript
+let currentValue = puzzle.get(0,0);
+// currentValue is 4 on the starter puzzle
+```
+
+### `unset(row, column)`
+
+Unset a cell previously set with set(). Equivalent to `puzzle.set(r,c,0)`
+    </textarea>
+    <div id="help"></div>
+  </body>
+</html>
