@@ -463,7 +463,7 @@ $(() => {
   editor.session.setMode("ace/mode/javascript");
   editor.setTheme("ace/theme/tomorrow_night_bright");
   editor.session.setTabSize(2);
-  editor.setValue(userCode);
+  editor.setValue(userCode, -1);
 
   reset();
 });
