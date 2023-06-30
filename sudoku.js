@@ -3,16 +3,30 @@
 let puzzle = null;
 let state = null;
 
-let animMillis = 50;
+let animMillis = 100;
 let isValidCalls = 0;
 let setCalls = 0;
 let worker = null;
 var editor = null;
 
-const defaultUserCode = `
+const defaultPuzzleString = 
+`[
+  [4,0,0, 1,0,2, 6,8,0],
+  [1,0,0, 0,9,0, 0,0,4],
+  [0,3,8, 0,6,4, 0,1,0],
 
-// See help at the bottom of the for how this works:
-function solve(puzzle) {
+  [0,0,5, 0,7,1, 9,2,0],
+  [0,2,6, 0,0,9, 8,0,0],
+  [8,0,0, 2,5,0, 0,0,0],
+
+  [9,0,3, 0,0,0, 0,0,8],
+  [2,5,0, 6,0,0, 1,0,7],
+  [6,0,7, 9,0,5, 3,0,0]
+]
+`
+
+const defaultUserCode = 
+`function solve(puzzle) {
   for(let r = 0; r < 9; r++) {
     for(let c = 0; c < 9; c++) {
       if(puzzle.get(r,c) === 0) {
@@ -51,6 +65,9 @@ function workerFunc() {
         }
       }
       return true;
+    },
+    isPrefilled: function(r, c) {
+      return this.puzzle[r][c] !== 0;
     },
     isSolved: function() {
       for( let r = 0; r < 9; r++ ) {
@@ -147,12 +164,15 @@ function workerFunc() {
   //After solve();
 }
 
+function closeDialog(event) {
+  $(event.target).closest('.dialog').slideUp();
+}
+
 function copy(puzzle) {
   return JSON.parse(JSON.stringify(puzzle));
 }
 
 function drawPuzzle() {
-  console.log("Resetting");
   let $display = $('#display');
   $display.empty();
   for( let r = 0; r < 9; r++ ) {
@@ -190,53 +210,23 @@ function drawPuzzle() {
   }
 }
 
-function init() {
-  let userCode = localStorage.getItem("userCode");
-  if (userCode === null) {
-    userCode = defaultUserCode;
-  }
+function editPuzzle() {
+  $('#puzzle').slideToggle();
+}
 
-  let md = window.markdownit({html: true});
-  $('#help').html(md.render($('#help-md').val()));
-
-  editor = ace.edit("solverCode");
-  editor.session.setMode("ace/mode/javascript");
-  editor.setTheme("ace/theme/monokai");
-  editor.session.setTabSize(4);
-  editor.setValue(userCode);
-
-  puzzle = localStorage.getItem("puzzle");
-  if (puzzle === null) {
-    puzzle = [
-      [4,0,0, 1,0,2, 6,8,0],
-      [1,0,0, 0,9,0, 0,0,4],
-      [0,3,8, 0,6,4, 0,1,0],
-
-      [0,0,5, 0,7,1, 9,2,0],
-      [0,2,6, 0,0,9, 8,0,0],
-      [8,0,0, 2,5,0, 0,0,0],
-
-      [9,0,3, 0,0,0, 0,0,8],
-      [2,5,0, 6,0,0, 1,0,7],
-      [6,0,7, 9,0,5, 3,0,0]
-    ];
-  }
-  else {
-    puzzle = JSON.parse(puzzle);
-  }
-  $('#puzzleCode').val(puzzleToText(puzzle));
-  reset();
+function help() {
+  $('#help').slideToggle();
 }
 
 function onDone(data) {
   state = data.state;
+  worker = null;
   if (data.err) {
     console.log("err", data.err);
     $('#messages').text("Finished with error: " + data.err);
     return;
   }
   $('#messages').text("Finished:" + (data.solved ? "Solved!" : "Not solved :("));
-  worker = null;
 }
 
 function onError(e) {
@@ -248,10 +238,9 @@ function onError(e) {
 function onIsValid(data) {
   isValidCalls++;
   updateStats();
-  $val = $(`#val-${data.r}-${data.c}`);
-  prev = $val.text();
-  console.log("prev", prev);
-  prevInvalid = $val.hasClass('invalid');
+  let $val = $(`#val-${data.r}-${data.c}`);
+  let prev = $val.text();
+  let prevInvalid = $val.hasClass('invalid');
   $val
     .queue( (next) => {
       $val
@@ -273,9 +262,9 @@ function onIsValid(data) {
 function onSet(data) {
   setCalls++;
   updateStats();
-  $val = $(`#val-${data.r}-${data.c}`);
-  prev = $val.text();
-  v = data.v;
+  let $val = $(`#val-${data.r}-${data.c}`);
+  let prev = $val.text();
+  let v = data.v;
   if(animMillis === 0) {
     $val.text(v === 0 ? '' : v);
   }
@@ -309,7 +298,7 @@ function onSet(data) {
 }
 
 function onWorkerMessage(e) {
-  console.log(`received [${e.data.type}] message`, e);
+  console.debug(`received [${e.data.type}] message`, e);
   switch (e.data.type) {
     case 'set':
       onSet(e.data);
@@ -327,6 +316,14 @@ function onWorkerMessage(e) {
 }
 
 function puzzleToText(puzzle) {
+  if (typeof puzzle === "string") {
+    try {
+      puzzle = JSON.parse(puzzle);
+    }
+    catch(e) {
+      return puzzle;
+    }
+  }
   let out = "[\n";
   for( let r = 0; r < 9; r++ ) {
     out += "[";
@@ -353,6 +350,33 @@ function puzzleToText(puzzle) {
 }
 
 function reset() {
+  try {
+    let puzzleString = $('#puzzleCode').val();
+    if (puzzleString === "") {
+      puzzleString = defaultPuzzleString;
+    }
+    puzzle = JSON.parse(puzzleString);
+    if ( puzzle.length !== 9 ) {
+      throw(`Invalid puzzle, wrong number of rows (${puzzle.length})`);
+    }
+    for(let r = 0; r < 9; r++) {
+      if (puzzle[r].length !== 9) {
+        throw(`Invalid puzzle, row ${r} has wrong number of columns: ${puzzle[r].length}`);
+      }
+      for(let c = 0; c < 9; c++) {
+        if(!Number.isInteger(puzzle[r][c])) {
+          throw(`Invalid puzzle, cell ${r},${c} is not an integer: ${puzzle[r][c]}`);
+        }
+        if(puzzle[r][c] < 0 || puzzle[r][c] > 9) {
+          throw(`Invalid puzzle, cell ${r},${c} is out of range: ${puzzle[r][c]}`);
+        }
+      }
+    }
+  }
+  catch(e) {
+    alert("Puzzle is invalid, to reset it clear the puzzle field and click 'Reset'\n"+e);
+  }
+
   state = copy(puzzle);
   setCalls = 0;
   isValidCalls = 0;
@@ -401,11 +425,47 @@ function updateStats() {
 }
 
 $(() => {
-  init();
-  $('#runSolver').on('click', run);
-  $('#reset').on('click', reset);
-  $('#stop').on('click', stop);
+  $('#runButton').on('click', run);
+  $('#puzzleButton').on('click', editPuzzle);
+  $('#resetButton').on('click', reset);
+  $('#stopButton').on('click', stop);
+  $('#helpButton').on('click', help);
+  $('button.close').on('click', closeDialog);
   window.onerror = onError;
+
+  let userCode = localStorage.getItem("userCode");
+  if (userCode === null || (typeof userCode !== 'string') || userCode.trim() === "") {
+    userCode = defaultUserCode;
+  }
+
+  let puzzleString = localStorage.getItem("puzzle");
+  if (puzzleString === null) {
+    puzzleString = defaultPuzzleString;
+  }
+  $('#puzzleCode').val(puzzleToText(puzzleString));
+
+  let md = window.markdownit({
+    html: true,
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return '<pre class="hljs"><code>' +
+            hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+            '</code></pre>';
+        } catch (__) {}
+      }
+      return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+    },
+  });
+  $('#helpContent').html(md.render($('#help-md').val()));
+
+  editor = ace.edit("solverCode");
+  editor.session.setMode("ace/mode/javascript");
+  editor.setTheme("ace/theme/tomorrow_night_bright");
+  editor.session.setTabSize(2);
+  editor.setValue(userCode);
+
+  reset();
 });
 
 }());

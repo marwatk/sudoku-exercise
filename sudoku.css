@@ -22,8 +22,10 @@ body {
   display: block;
 }
 
-#display {
+#displayContainer {
   float: left;
+}
+#display {
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
@@ -91,7 +93,7 @@ body {
 }
 
 #puzzle {
-  clear: both;
+  width: 15em;
 }
 
 #help-md {
@@ -100,4 +102,31 @@ body {
 
 #help {
   width: 40vw;
+}
+
+.dialog {
+  display: none;
+  z-index: 100;
+  position: absolute;
+  background-color: #111;
+  border-width: 4px;
+  border-color: #eee;
+  border-style: solid;
+  padding: 5px;
+}
+
+button.close {
+  float: right;
+}
+
+.hljs-comment {
+  color: lightgreen;
+}
+
+.hljs-keyword {
+  color: lightpink;
+}
+
+.hljs-title {
+  color: lightblue;
 }

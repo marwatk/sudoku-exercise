@@ -6,6 +6,7 @@ Simple playground for creating and testing algorithms for solving Sudoku puzzles
 
 ## Usage
 
-Download the source files and open [index.html](index.html) in your browser.
+[Try it yourself](https://marwatk.github.io/sudoku-exercise).
+Or download the source and open [index.html](./index.html) in your browser.
 
-Help on how to write a solver is at the bottom of the page.
+See the _Help_ button at the top of the page for how to write a solver.
