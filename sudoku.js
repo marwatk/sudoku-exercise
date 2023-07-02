@@ -45,6 +45,25 @@ function workerFunc() {
     get: function(r, c) {
       return this.state[r][c];
     },
+    getValid: function(r, c) {
+      let valid = [false, true, true, true, true, true, true, true, true, true];
+      for (let i = 0; i < 9; i++) {
+        valid[this.state[i][c]] = false;
+        valid[this.state[r][i]] = false;
+      }
+      for (let rr = Math.floor(r/3)*3; rr < (Math.floor(r/3)+1)*3; rr++ ) {
+        for (let cc = Math.floor(c/3)*3; cc < (Math.floor(c/3)+1)*3; cc++ ) {
+          valid[this.state[rr][cc]] = false;
+        }
+      }
+      let result = [];
+      for(let i = 1; i < 10; i++) {
+        if (valid[i]) {
+          result.push(i);
+        }
+      }
+      return result;
+    },
     internalIsValid: function(r, c, v) {
       if ( v === 0 ) {
         return true;

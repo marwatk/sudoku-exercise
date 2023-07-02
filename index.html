@@ -61,7 +61,7 @@ function solve(puzzle) {
 ```
 
 This, of course, doesn't solve the puzzle, just illustrates basic structure.
-There are six useful methods of the `puzzle` object:
+There are seven useful methods of the `puzzle` object:
 
 1. `isValid(row, column, value)`: Returns true if a number is valid for a cell (ignores if that cell already has a value).
 
@@ -69,6 +69,13 @@ There are six useful methods of the `puzzle` object:
     let valid = puzzle.isValid(0,2,9);
     // valid is false for the starter puzzle because there's already
     // a '9' in cell (0,1)
+    ```
+
+1. `getValid(row, column)`: Returns the values valid for that cell
+
+    ```javascript
+    let valid = puzzle.getValid)1,1);
+    // valid is [6,7,8] for the starter puzzle
     ```
 
 1. `isPrefilled(row, column)`: Returns true if a cell is prefilled as part of the puzzle.
