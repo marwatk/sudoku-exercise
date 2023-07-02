@@ -48,12 +48,18 @@ function workerFunc() {
     getValid: function(r, c) {
       let valid = [false, true, true, true, true, true, true, true, true, true];
       for (let i = 0; i < 9; i++) {
-        valid[this.state[i][c]] = false;
-        valid[this.state[r][i]] = false;
+        if ( i !== c ) {
+          valid[this.state[i][c]] = false;
+        }
+        if ( i !== r ) {
+          valid[this.state[r][i]] = false;
+        }
       }
       for (let rr = Math.floor(r/3)*3; rr < (Math.floor(r/3)+1)*3; rr++ ) {
         for (let cc = Math.floor(c/3)*3; cc < (Math.floor(c/3)+1)*3; cc++ ) {
-          valid[this.state[rr][cc]] = false;
+          if ( rr !== r || cc !== c ) {
+            valid[this.state[rr][cc]] = false;
+          }
         }
       }
       let result = [];
